@@ -1,12 +1,14 @@
 // import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, LogBox, Alert } from 'react-native';
 import Start from './components/Start';
 import Chat from './components/Chat';
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, disableNetwork, enableNetwork } from "firebase/firestore";
 // import react Navigation
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useNetInfo }from '@react-native-community/netinfo';
+import { useEffect } from "react";
 
 // Create the navigator
 const Stack = createNativeStackNavigator();
@@ -22,6 +24,17 @@ const App = () => {
     appId: "1:385558203484:web:978c1ab9adea6066206a99",
     measurementId: "G-8MYCHHDMM1"
   };
+
+  const connectionStatus = useNetInfo();
+
+  useEffect(() => {
+    if (connectionStatus.isConnected === false) {
+      Alert.alert("Connection Lost!");
+      disableNetwork(db);
+    } else if (connectionStatus.isConnected === true) {
+      enableNetwork(db);
+    }
+  }, [connectionStatus.isConnected]);
 
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
@@ -41,7 +54,7 @@ const App = () => {
         <Stack.Screen
          name="Chat"
        >
-         {props => <Chat db={db} {...props} />}
+         {props => <Chat db={db} {...props} isConnected={connectionStatus.isConnected} />}
        </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>

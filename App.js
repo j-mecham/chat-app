@@ -9,6 +9,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useNetInfo }from '@react-native-community/netinfo';
 import { useEffect } from "react";
+import { getStorage } from "firebase/storage";
 
 // Create the navigator
 const Stack = createNativeStackNavigator();
@@ -41,6 +42,7 @@ const App = () => {
 
   // Initialize Cloud Firestore and get a reference to the service
   const db = getFirestore(app);
+  const storage = getStorage(app);
 
   return (
     <NavigationContainer>
@@ -54,7 +56,12 @@ const App = () => {
         <Stack.Screen
          name="Chat"
        >
-         {props => <Chat db={db} {...props} isConnected={connectionStatus.isConnected} />}
+         {props => <Chat 
+         db={db} 
+         {...props} 
+         isConnected={connectionStatus.isConnected}
+         storage={storage} 
+         />}
        </Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>
